@@ -2,27 +2,33 @@
 
 A web-based overlay for Beat Saber
 
-![preview](https://i.imgur.com/fOg4TUp.png)
+Because the original repository has been archived.
+
+So I modified the code and used the Song Overlay function of [BeatSaberPlus (BS+)](https://github.com/hardcpp/BeatSaberPlus).
+
+
+![preview](https://i.imgur.com/pXK8ZjB.png)
+
 
 ## Installation (OBS)
 
-1. Download and install the [BeatSaberHTTPStatus plugin](https://github.com/opl-/beatsaber-http-status/releases)
+1. Download and install the [BeatSaberPlus (BS+) plugin](https://github.com/hardcpp/BeatSaberPlus)  (DownloadLink in BeatSaberPlus Discord).
 2. Create a Browser source
 
 ![image](https://i.imgur.com/WyTjdtd.png)
 
-3. Set the URL as `http://reselim.github.io/overlay/` (HTTP, not HTTPS!) and the size equal to your canvas size (1280x720, etc.)
+3. Set the URL as `https://interfacegui.github.io/beat-saber-overlay/` and the size equal to your canvas size (1280x720, etc.)
 
-![image](https://imgur.com/KxowYrw.png)
+![image](https://i.imgur.com/xxWXGrT.png)
 
-4. (Optional) For 1080p canvases, add the `scale` modifier (ex. `http://reselim.github.io/overlay/?modifiers=scale`) to scale the overlay by 1.5x
+4. (Optional) For 1080p canvases, add the `scale` modifier (ex. `https://interfacegui.github.io/beat-saber-overlay/?modifiers=scale`) to scale the overlay by 1.5x
 
 ## Options
 
 Options are added to the URL query as such:
 
 ```
-http://reselim.github.io/overlay/?modifiers=top
+https://interfacegui.github.io/beat-saber-overlay/?modifiers=top
 ```
 
 ### `ip` and `port`
