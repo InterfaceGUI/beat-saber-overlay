@@ -1,6 +1,7 @@
+
 const ui = (() => {
 	var main = document.getElementById("overlay");
-
+	var mapLength;
 	const performance = (() => {
 		var rank = document.getElementById("rank");
 		var percentage = document.getElementById("percentage");
@@ -14,11 +15,34 @@ const ui = (() => {
 		return (data) => {
 			score.innerText = format(data.score);
 			combo.innerText = data.combo;
-			rank.innerText = data.rank;
-			percentage.innerText = (data.currentMaxScore > 0 ? (Math.floor((data.score / data.currentMaxScore) * 1000) / 10) : 0) + "%";
+			switch (true) {
+				case (data.accuracy * 100 >= 90):
+					rank.innerText = "SS";
+					break;
+				case (data.accuracy * 100 >= 80):
+					rank.innerText = "S";
+					break;
+				case (data.accuracy * 100 >= 65):
+					rank.innerText = "A";
+					break;
+				case (data.accuracy * 100 >= 35):
+					rank.innerText = "B";
+					break;
+				case (data.accuracy * 100 >= 20):
+					rank.innerText = "C";
+					break;
+				case (data.accuracy * 100 <= 19):
+					rank.innerText = "D";
+					break;
+				default:
+					rank.innerText = "NaN";
+					break;
+			}
+			
+			percentage.innerText = (data.accuracy * 100).toFixed(2) + "%";
 		}
 	})();
-
+	
 	const timer = (() => {
 		const radius = 30;
 		const circumference = radius * Math.PI * 2;
@@ -32,7 +56,8 @@ const ui = (() => {
 		var duration;
 
 		var display;
-
+		var TimerInterval;
+		var timeElapsed=0;
 		function format(time) {
 			var minutes = Math.floor(time / 60);
 			var seconds = time % 60;
@@ -44,13 +69,11 @@ const ui = (() => {
 			return `${minutes}:${seconds}`;
 		}
 
-		function update(time) {
-			time = time || Date.now();
-
-			var delta = time - began;
-
-			var progress = Math.floor(delta / 1000);
-			var percentage = Math.min(delta / duration, 1);
+		function update() {
+			
+			//(100 * timeElapsed) / mapLength
+			var progress = Math.trunc((timeElapsed/1000));
+			var percentage = Math.min(((100 * timeElapsed) / mapLength)/100, 1);
 
 			bar.setAttribute("style", `stroke-dashoffset: ${(1 - percentage) * circumference}px`);
 
@@ -62,20 +85,24 @@ const ui = (() => {
 		}
 
 		function loop() {
-			if (active) {
-				update();
-				requestAnimationFrame(loop);
-			}
+
 		}
 
 		return {
+			resume(time){
+				active = true;
+				timeElapsed =time;
+
+			},
 			start(time, length) {
 				active = true;
+				TimerInterval =  setInterval(() => {
+					if (active){
+						timeElapsed = timeElapsed + 100; 
+						update();
+					}
+				}, 100);
 				
-				began = time;
-				duration = length;
-
-				loop();
 			},
 
 			pause(time) {
@@ -85,7 +112,7 @@ const ui = (() => {
 			},
 
 			stop() {
-				active = false;
+				clearInterval(TimerInterval);
 				began = undefined;
 				duration = undefined;
 			}
@@ -110,38 +137,50 @@ const ui = (() => {
 
 			if (Math.floor(number) !== number) {
 				return number.toFixed(2);
-			}
+			} 
 
 			return number.toString();
 		}
-
+		
 		return (data, time) => {
 			if (data.difficulty === "ExpertPlus") {
 				data.difficulty = "Expert+";
 			}
 
-			cover.setAttribute("src", `data:image/png;base64,${data.songCover}`);
+			cover.setAttribute("src", `data:image/png;base64,${data.coverRaw}`);
 
-			title.innerText = data.songName;
-			subtitle.innerText = data.songSubName;
+			title.innerText = data.name;
+			subtitle.innerText = data.sub_name;
 			
-			if (data.levelAuthorName) {
-				artist.innerText = `${data.songAuthorName} [${data.levelAuthorName}]`;
+			if (data.mapper) {
+				artist.innerText = `${data.artist} [${data.mapper}]`;
 			} else {
-				artist.innerText = data.songAuthorName;
+				artist.innerText = data.artist;
 			}
 			
+			
+			
+			async function dataMap(){
+				response = await fetch("https://api.beatsaver.com/" + "maps/hash/" + data.level_id.substring(13), {
+					method: "GET"
+				});
+				return await response.json()
+			}
+			dataMap().then(data => updateMapId(data)); ;
 
 			difficulty.innerText = data.difficulty;
-			bpm.innerText = `${format(data.songBPM)} BPM`;
+			bpm.innerText = `${format(data.BPM)} BPM`;
 
-			if (data.noteJumpSpeed) {
-				njs.innerText = `${format(data.noteJumpSpeed)} NJS`;
-			} else {
-				njs.innerText = "";
+			function updateMapId(mapid){
+				if (mapid.id) {
+					njs.innerText = "!bsr " + mapid.id;
+				} else {
+					njs.innerText = "";
+				}
 			}
-
-			timer.start(Date.now(), data.length);
+			
+			mapLength = data.duration;
+			timer.start(Date.now(), data.duration);
 		}
 	})();
 
