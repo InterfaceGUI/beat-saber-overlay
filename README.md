@@ -1,4 +1,4 @@
-# (Unnamed) Beat Saber Overlay
+# Beat Saber Overlay for [BeatSaberPlus (BS+)](https://github.com/hardcpp/BeatSaberPlus)
 
 A web-based overlay for Beat Saber
 
